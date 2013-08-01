@@ -4,7 +4,7 @@
  * Plugin URI: http://www.fieldtripper.com/
  * Description: This plugin adds the ability to set a location and other data for a post that is compatible with Field Trip.
  * Author: nianticlabs, 10up
- * Version: 1.0.0-beta.06.20.2013
+ * Version: 1.0
  * Author URI: http://www.fieldtripper.com/
  * License: GPL2
  *
