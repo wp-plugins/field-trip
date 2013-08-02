@@ -21,14 +21,12 @@ The additional tags that will be added to your post and feed are:
 * Date to stop showing card in Field Trip
 * Date to start showing card in Field Trip, entering no date will show card as soon as it is published in Field Trip
 
-This will be setup as a special feed that can only be accessed if you have the Field Trip Key.
-
 If you are currently not a publisher for Field Trip, you can submit your site for inclusion in Field Trip through the Field Trip Wordpress plugin settings page.
 == Installation ==
 
 1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and request a key.
+3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and click on Submit to Field Trip.
 
 == Changelog ==
 
