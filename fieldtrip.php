@@ -4,7 +4,7 @@
  * Plugin URI: http://www.fieldtripper.com/
  * Description: This plugin adds the ability to set a location and other data for a post that is compatible with Field Trip.
  * Author: nianticlabs, 10up
- * Version: 1.0
+ * Version: 1.0.1
  * Author URI: http://www.fieldtripper.com/
  * License: GPL2
  *
@@ -30,7 +30,6 @@
 require_once 'includes/class-fieldtrip-geocode.php';
 
 class FieldTrip_WP {
-
 
 	public function __construct() {
 
@@ -78,6 +77,8 @@ class FieldTrip_WP {
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_admin_scripts' ) );
 		add_action( 'add_meta_boxes',        array( &$this, 'add_meta_boxes'         ) );
 
+		// two settings, so we can have two separate forms on the page
+		register_setting( 'field_trip_config', 'field_trip_config', array( &$this, 'feed_settings' ) );
 		register_setting( 'field_trip_settings', 'field_trip_settings', array( &$this, 'feed_submission' ) );
 
 	}
@@ -219,8 +220,6 @@ class FieldTrip_WP {
 	 * Submits feed to publishers@fieldtripper.com
 	 */
 	public function feed_submission() {
-
-
 		$headers[] = 'From: FieldTrip Submission <fieldtripsubmission@' . get_site_url() . '>';
 		$subject   = 'WP Field Trip Submission - ' . get_site_url();
 		$message   = 'Site URL: ' . get_site_url() . '
@@ -230,8 +229,21 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 
 		wp_mail( 'publishers@fieldtripper.com', $subject, $message, $headers );
 
-		return;
+		add_filter('wp_redirect', function( $url ) {
+			$url = add_query_arg(array('feed-submitted' => 'true'), $url);
+			return $url;
+		});
 
+		return;
+	}
+
+	public function feed_settings() {
+		if ( isset( $_POST['fieldtrip_content_filter'] ) ) {
+			update_option( 'fieldtrip_content_filter', sanitize_text_field( $_POST['fieldtrip_content_filter'] ) );
+		} else {
+			//not set, so make the option set to false
+			update_option( 'fieldtrip_content_filter', false );
+		}
 	}
 
 	/**
@@ -242,9 +254,10 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 
 		if ( 'options-general.php' === $pagenow && 'field-trip' === $_GET['page'] ) {
 
-			if ( ( isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'] ) ) {
+			if ( ( isset( $_GET['settings-updated'] ) && 'true' === $_GET['settings-updated'] && 'true' === $_GET['feed-submitted'] ) ) {
 
 				unset( $_GET['settings-updated'] );
+				unset( $_GET['feed-submitted'] );
 
 		  		$errors = get_settings_errors();
 

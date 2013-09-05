@@ -22,6 +22,29 @@ if ( ! current_user_can( 'manage_options' ) )
 </style>
 <div class="wrap">
 	<h2><?php _e( 'Field Trip Settings', 'field_trip' ); ?></h2>
+
+	<h3>Format Settings</h3>
+	<form method="post" action="options.php">
+
+		<?php settings_fields( 'field_trip_config' ); ?>
+
+		<table class="form-table">
+			<tr valign="top">
+				<td colspan="2">
+					<input type="checkbox" name="fieldtrip_content_filter" id="fieldtrip_content_filter" value="1" <?php checked( get_option('fieldtrip_content_filter'), 1, true ); ?> />
+					<label for="fieldtrip_content_filter">Only include paragraph/newline HTML tags in description</label>
+				</td>
+			</tr>
+
+			<tr valign="top">
+				<td><?php submit_button( 'Save Settings' ); ?></td>
+			</tr>
+		</table>
+	</form>
+
+	<br><hr>
+
+	<h3>Submit Your Site</h3>
 	<form method="post" action="options.php">
 
 		<?php settings_fields( 'field_trip_settings' ); ?>

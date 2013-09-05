@@ -25,7 +25,6 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 				array(
 					'geographic_location' => '',
 					'start_date' => '',
-					'content_filter' => '',
 					'end_date' => '',
 					'lat' => '',
 					'lng' => '',
@@ -46,7 +45,7 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 				<link><?php the_permalink_rss() ?></link>
 				<guid isPermaLink="false"><?php the_guid(); ?></guid>
 
-				<?php if ( $location_meta['content_filter'] == 1 ) : ?>
+				<?php if ( get_option('fieldtrip_content_filter') == 1 ) : ?>
 					<description><![CDATA[<?php the_excerpt_rss(); ?>]]></description>
 				<?php else : ?>
 					<description><![CDATA[<?php the_content_feed(); ?>]]></description>

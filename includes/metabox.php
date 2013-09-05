@@ -9,7 +9,6 @@ $defaults = array(
 			'geographic_location' => '',
 			'start_date' => '',
 			'end_date' => '',
-			'content_filter' => true,
 			'error_code' => NULL,
 			'lat' => '',
 			'lng' => '',
@@ -105,14 +104,4 @@ printf(
 			</p>',
 	$key,
 	esc_attr( $location_meta['start_date'] )
-);
-
-echo '<hr />';
-
-printf(
-	'<p><input type="checkbox"  name="%1$s[content_filter]" id="%1$s_id[content_filter]" value="1" ' . checked( $location_meta['content_filter'], 1, false ) . ' />
-			<label for="%1$s_id">Only include paragraph/newline HTML tags in description</label>
-			</p>',
-	$key,
-	esc_attr( $location_meta['content_filter'] )
 );

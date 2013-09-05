@@ -30,6 +30,9 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 
 == Changelog ==
 
+= 1.0.1 =
+* Moves the setting for whether to include paragraph/newline HTML tags in description from per-post to a per-blog option in the Field Trip Settings menu.
+
 = 1.0 =
 * Initial release of the plugin
 
