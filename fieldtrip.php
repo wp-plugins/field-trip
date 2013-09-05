@@ -229,12 +229,14 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 
 		wp_mail( 'publishers@fieldtripper.com', $subject, $message, $headers );
 
-		add_filter('wp_redirect', function( $url ) {
-			$url = add_query_arg(array('feed-submitted' => 'true'), $url);
-			return $url;
-		});
+		add_filter('wp_redirect', array( &$this, 'feed_submission_redirect_filter' ) );
 
 		return;
+	}
+
+	public function feed_submission_redirect_filter( $url ) {
+		$url = add_query_arg( array('feed-submitted' => 'true'), $url );
+		return $url;
 	}
 
 	public function feed_settings() {
