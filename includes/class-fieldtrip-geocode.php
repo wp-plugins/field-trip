@@ -2,6 +2,13 @@
 class FieldTrip_Geocode {
 
 	/**
+	 * Max feet between opposite corners of the bounds of the address, if they are provided in the response from google
+	 *
+	 * @var int
+	 */
+	static $max_bound_distance = 2500;
+
+	/**
 	 * A blank constructor
 	 */
 	public function __construct() {}
@@ -83,8 +90,18 @@ class FieldTrip_Geocode {
 				$data[ 'lng' ]                 = (float) $address_data->results[0]->geometry->location->lng;
 
 				// Location is too non-specific Ex: 'Central Park, NY' (locations exsist within)
-				if ( isset( $address_data->results[0]->geometry->bounds ) )
-					$data[ 'error_code' ] = "003";
+				if ( isset( $address_data->results[0]->geometry->bounds ) ) {
+					$bounds = (array)$address_data->results[0]->geometry->bounds;
+					$point1 = array_shift( $bounds );
+					$point2 = array_shift( $bounds );
+
+					$distance = self::calculate_distance( $point1, $point2 );//distance in miles
+					$distance_feet = $distance * 5280; //convert to feet
+					if ( $distance_feet > self::$max_bound_distance ) { //allow up to max_bound_distance (in feet) between opposite corners of the address, or else say too unspecific.
+						$data[ 'error_code' ] = "003";
+					}
+				}
+
 			}
 
 		} else {
@@ -97,6 +114,27 @@ class FieldTrip_Geocode {
 
 		return $data;
 
+	}
+
+	/**
+	 * Calculate the distance between two latitude & longitude points in miles
+	 *
+	 * @return float Distance between the points, in miles
+	 */
+	public static function calculate_distance( $point_1, $point_2 ) {
+		$earthRadius = 3959; //radius of earth, miles
+		$latFrom = deg2rad( $point_1->lat );
+		$lngFrom = deg2rad( $point_1->lng );
+		$latTo = deg2rad( $point_2->lat );
+		$lngTo = deg2rad( $point_2->lng );
+
+		$latDelta = $latTo - $latFrom;
+		$lngDelta = $lngTo - $lngFrom;
+
+		$angle = 2 * asin( sqrt( pow( sin( $latDelta / 2 ), 2 ) + cos( $latFrom ) * cos( $latTo ) * pow( sin( $lngDelta / 2 ), 2 ) ) );
+		$distance = $angle * $earthRadius;
+
+		return $distance;
 	}
 
 	/**
