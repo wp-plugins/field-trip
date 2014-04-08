@@ -2241,6 +2241,24 @@
 			var location = $(this).attr('data-possible-location');
 			$(".geographic-location-field").val( location );
 		});
+
+		// Listen for changes to the geographic location to refresh the map
+		$( '.geographic-location-field' ).change( function() {
+			var postdata = {
+				nonce: Fieldtrip.MapPreviewNonce,
+				action: 'fieldtrip_map_preview',
+				geographic_location: $(this).val()
+			};
+
+			jQuery.post( ajaxurl, postdata, function( response ) {
+				response = jQuery.parseJSON(response);
+				if ( "undefined" !== typeof response.success && "true" === response.success && "undefined" !== typeof response.map ) {
+					var container = jQuery('#fieldtrip-map-container');
+
+					container.html( response.map );
+				}
+			});
+		});
 	});
 
 }(jQuery));

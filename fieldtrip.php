@@ -4,7 +4,7 @@
  * Plugin URI: http://www.fieldtripper.com/
  * Description: This plugin adds the ability to set a location and other data for a post that is compatible with Field Trip.
  * Author: nianticlabs, 10up
- * Version: 1.0.2
+ * Version: 1.1.0
  * Author URI: http://www.fieldtripper.com/
  * License: GPL2
  *
@@ -28,6 +28,7 @@
 
 // include geocoding class
 require_once 'includes/class-fieldtrip-geocode.php';
+require_once 'includes/class-post-maps.php';
 
 class FieldTrip_WP {
 
@@ -41,6 +42,8 @@ class FieldTrip_WP {
 		add_action( 'admin_init',    array( &$this, 'admin_init'        ) );
 		add_action( 'admin_menu',    array( &$this, 'add_menu'          ) );
 		add_action( 'admin_notices', array( &$this, 'validation_notice' ) );
+
+		add_action( 'wp_ajax_fieldtrip_map_preview', array( $this, 'map_preview' ) );
 
 	}
 
@@ -58,6 +61,20 @@ class FieldTrip_WP {
 
 		flush_rewrite_rules();
 
+	}
+
+	/**
+	 * Returns the supported content types.
+	 *
+	 * Use this to make sure you get the filtered content types back
+	 *
+	 * @return array|mixed|void
+	 */
+	public static function get_supported_content_types() {
+		$content_types = array( 'post'=> 'post', 'page' => 'page' );
+		$content_types = apply_filters( 'fieldtrip_supported_content_types', $content_types );
+
+		return $content_types;
 	}
 
 	public function init() {
@@ -101,6 +118,10 @@ class FieldTrip_WP {
 			wp_enqueue_style( 'fieldtrip-admin',
 				plugins_url( '/css/admin.css' , __FILE__ )
 			);
+
+			wp_localize_script( 'fieldtrip-admin', 'Fieldtrip', array(
+				'MapPreviewNonce' => wp_create_nonce( 'map-preview' )
+			));
 		}
 	}
 
@@ -110,8 +131,7 @@ class FieldTrip_WP {
 	 */
 	public function add_meta_boxes() {
 
-		$content_types = array( 'post'=> 'post', 'page' => 'page' );
-		$content_types = apply_filters( 'fieldtrip_supported_content_types', $content_types );
+		$content_types = FieldTrip_WP::get_supported_content_types();
 
 		foreach ( $content_types as $content_type ) {
 			add_meta_box(
@@ -359,6 +379,50 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 	}
 
 
+	/**
+	 * Ajax Handler for previewing the map on the post edit screen.
+	 */
+	public function map_preview() {
+		if (
+			! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'map-preview' ) ||
+			! isset( $_POST['geographic_location'] ) || empty( $_POST['geographic_location'] )
+		) {
+			return;
+		}
+
+		$geographic_location = sanitize_text_field( $_POST['geographic_location'] );
+
+		if ( $lat_lng = FieldTrip_Geocode::maybe_lng_lat( $geographic_location ) ) {
+			$data = $lat_lng;
+		} else {
+			$data = FieldTrip_Geocode::address_data( $geographic_location );
+		}
+
+		if ( is_array( $data ) && isset( $data['possible_locations'] ) ) {
+			// Too many options to get a single map
+			$final_data = array( 'success' => 'false' );
+		} else {
+			$final_data = is_array( $data ) ? array_map( 'sanitize_text_field', $data ) : sanitize_text_field( $data );
+			$final_data['success'] = 'true';
+		}
+
+		$lat = is_array( $final_data ) && isset( $final_data['lat'] ) ? $final_data['lat'] : false;
+		$lng = is_array( $final_data ) && isset( $final_data['lng'] ) ? $final_data['lng'] : false;
+
+		if ( $lat && $lng ) {
+			$map = '<p class="field-trip-verified">&#x2713; Field Trip Verified</p>';
+			$map .= '<img class="field-trip-map-view" src="http://maps.googleapis.com/maps/api/staticmap?zoom=13&size=600x300&maptype=roadmap&markers=color:red%7C' . urlencode( $lat ) . ',' . urlencode( $lng ) .'&sensor=false" />';
+			$map .= '<p><small>' . (float) $lat . ', ' . (float) $lng . '</small></p>';
+
+			$final_data['map'] = $map;
+		}
+
+		// Not using wp_send_json to maintain compatibility with versions pre 3.5
+		echo json_encode( $final_data );
+		die();
+	}
+
+
 }
 
 if ( class_exists( 'FieldTrip_WP' ) ) {
@@ -368,4 +432,5 @@ if ( class_exists( 'FieldTrip_WP' ) ) {
 
 	// initiate
 	$wp_plugin_template = new FieldTrip_WP();
+	$post_maps = new FieldTrip_Post_Maps();
 }
