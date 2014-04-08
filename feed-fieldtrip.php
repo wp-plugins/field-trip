@@ -9,7 +9,7 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 		<title><?php bloginfo_rss( 'name' ); wp_title_rss(); ?></title>
 		<link><?php bloginfo_rss( 'url' ) ?></link>
 		<description><?php bloginfo_rss( 'description' ) ?></description>
-		<generator>Field Trip Plugin for WordPress 1.0.2</generator>
+		<generator>Field Trip Plugin for WordPress 1.1.0</generator>
 
 		<pubDate><?php echo apply_filters( 'fieldtrip_feed_pubdate', mysql2date( 'D, d M Y H:i:s +0000', get_lastpostmodified( 'GMT' ), false ) ); ?></pubDate>
 		<lastBuildDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_lastpostmodified( 'GMT' ), false ); ?></lastBuildDate>
@@ -80,29 +80,36 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 				<?php
 					if ( get_post_field( 'post_content', get_the_ID() ) ) {
 
-						$post_content = mb_convert_encoding( get_post_field( 'post_content', get_the_ID() ), 'HTML-ENTITIES', get_option( 'blog_charset' ) );
-						$post_content_dom = new DOMDocument();
-						$post_content_dom->loadHTML( $post_content );
-
-						$images = $post_content_dom->getElementsByTagName( 'img' );
-
-						if ( $images ) {
-
-							foreach ( $images as $image ) {
-
-							$title = $image->getAttribute( 'title' );
-
-							if ( ! $title )
-								$title = $image->getAttribute( 'alt' );
-
-						?>
-							<fieldtrip:image>
-								<url><?php echo esc_url( apply_filters( 'the_permalink_rss', $image->getAttribute( 'src' ) ) ); ?></url>
-								<title><?php echo esc_html( $title ); ?></title>
-							</fieldtrip:image>
-						<?php }
-
+						$post_content = get_post_field( 'post_content', get_the_ID() );
+						if ( function_exists( 'mb_convert_encoding' ) ) {
+							$post_content = mb_convert_encoding( $post_content, 'HTML-ENTITIES', get_option( 'blog_charset' ) );
 						}
+
+						if ( class_exists( 'DOMDocument' ) ) {
+							$post_content_dom = new DOMDocument();
+							$post_content_dom->loadHTML( $post_content );
+
+							$images = $post_content_dom->getElementsByTagName( 'img' );
+
+							if ( $images ) {
+
+								foreach ( $images as $image ) {
+
+									$title = $image->getAttribute( 'title' );
+
+									if ( ! $title )
+										$title = $image->getAttribute( 'alt' );
+
+									?>
+									<fieldtrip:image>
+										<url><?php echo esc_url( apply_filters( 'the_permalink_rss', $image->getAttribute( 'src' ) ) ); ?></url>
+										<title><?php echo esc_html( $title ); ?></title>
+									</fieldtrip:image>
+								<?php }
+
+							}
+						}
+
 					}
 				?>
 				<?php if ( ! empty( $location_meta['start_date'] ) ) { ?>

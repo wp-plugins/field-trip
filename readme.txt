@@ -2,8 +2,8 @@
 Contributors: nianticlabs, 10up
 Tags: fieldtrip, geolocation, rss, map
 Requires at least: 3.0.1
-Tested up to: 3.6
-Stable tag: 1.0.2
+Tested up to: 3.9
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,11 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and click on Submit to Field Trip.
 
 == Changelog ==
+
+= 1.1.0 =
+* Fix: Ensure that PHP libraries are present before using them to generate the xml feed.
+* New: Added a 'map' shortcode to embed a map of the location associated with the post.
+* New: Location preview now updates without having to save the post.
 
 = 1.0.2 =
 * Increase the maximum acceptable distance for locations

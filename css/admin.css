@@ -33,3 +33,11 @@ button.ui-datepicker-current { display: none; }
 	cursor: pointer;
 	text-decoration: underline;
 }
+
+.ftmap-container,
+.ftmap-size,
+#fieldtrip-custom-size-container,
+.ftmap-align,
+#ft-insert-map {
+	margin-top: 1em;
+}
