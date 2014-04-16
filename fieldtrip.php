@@ -4,7 +4,7 @@
  * Plugin URI: http://www.fieldtripper.com/
  * Description: This plugin adds the ability to set a location and other data for a post that is compatible with Field Trip.
  * Author: nianticlabs, 10up
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author URI: http://www.fieldtripper.com/
  * License: GPL2
  *
@@ -398,28 +398,89 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 			$data = FieldTrip_Geocode::address_data( $geographic_location );
 		}
 
-		if ( is_array( $data ) && isset( $data['possible_locations'] ) ) {
-			// Too many options to get a single map
-			$final_data = array( 'success' => 'false' );
+		if ( is_array( $data ) && isset( $data['error_code'] ) ) {
+			$final_data = array(
+				'success' => 'false',
+				'message' => self::get_location_error_html( $data ),
+			);
 		} else {
 			$final_data = is_array( $data ) ? array_map( 'sanitize_text_field', $data ) : sanitize_text_field( $data );
 			$final_data['success'] = 'true';
 		}
 
-		$lat = is_array( $final_data ) && isset( $final_data['lat'] ) ? $final_data['lat'] : false;
-		$lng = is_array( $final_data ) && isset( $final_data['lng'] ) ? $final_data['lng'] : false;
+		$lat = is_array( $data ) && isset( $data['lat'] ) ? $data['lat'] : false;
+		$lng = is_array( $data ) && isset( $data['lng'] ) ? $data['lng'] : false;
 
 		if ( $lat && $lng ) {
-			$map = '<p class="field-trip-verified">&#x2713; Field Trip Verified</p>';
+			$map = '';
+
+			// Only add the 'verified' if marked as success
+			if ( isset( $final_data['success'] ) &&  'true' == $final_data['success'] ) {
+				$map .= '<p class="field-trip-verified">&#x2713; Field Trip Verified</p>';
+			}
+
 			$map .= '<img class="field-trip-map-view" src="http://maps.googleapis.com/maps/api/staticmap?zoom=13&size=600x300&maptype=roadmap&markers=color:red%7C' . urlencode( $lat ) . ',' . urlencode( $lng ) .'&sensor=false" />';
 			$map .= '<p><small>' . (float) $lat . ', ' . (float) $lng . '</small></p>';
 
+			$final_data['lat'] = $lat;
+			$final_data['lng'] = $lng;
 			$final_data['map'] = $map;
 		}
 
 		// Not using wp_send_json to maintain compatibility with versions pre 3.5
 		echo json_encode( $final_data );
 		die();
+	}
+
+	/**
+	 * Gets the error message for a given error code.
+	 *
+	 * @param string $error_code The error code the get the message for.
+	 *
+	 * @return string The localized error message.
+	 */
+	public static function get_error_message( $error_code ) {
+		switch( $error_code ) {
+			case "000":
+				$error = __( "Error connecting to API, please try again.", 'fieldtrip' );
+				break;
+			case "001":
+				$error = __( "No Results Returned", 'fieldtrip' );
+				break;
+			case "002":
+				$error = __( "Several locations with this address have been found. Please be more specific.", 'fieldtrip' );
+				break;
+			case "003":
+				$error = __( "Location is too non-specific for use in Field Trip.", 'fieldtrip' );
+				break;
+		}
+
+		return $error;
+	}
+
+	/**
+	 * Gets HTML for the error message section of the edit post screen. Used in metabox.php and the JS preview callback
+	 *
+	 * @param array $location_meta
+	 *
+	 * @return string HTML representing the full error message section
+	 */
+	public static function get_location_error_html( $location_meta ) {
+		$html = '';
+
+		$html .= '<div class="error inline"><p>E' . $location_meta['error_code'] . ': ' . FieldTrip_WP::get_error_message( $location_meta['error_code'] ) . '</p></div>';
+
+		// Several locations with address.
+		if ( $location_meta['error_code'] === "002" ) {
+			$html .= '<div class="postbox"><h3>Did you mean?</h3>';
+			$html .= '<div class="inside"><ul class="possible-locations">';
+			foreach ( $location_meta['possible_locations'] as $possible_location ) {
+				$html .= '<li class="possible-location" data-possible-location="' . esc_attr( $possible_location ) . '">' . esc_attr( $possible_location ) . '</li>';
+			}
+			$html .= '</ul></div></div>';
+		}
+
+		return $html;
 	}
 
 

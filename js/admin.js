@@ -2104,7 +2104,8 @@
 
 
 (function($) {
-    $(function() {
+    // Datepicker
+	$(function() {
 
         if( 0 < $('.datetimepicker').length ) {
             $('.datetimepicker').datetimepicker({
@@ -2237,9 +2238,12 @@
 
 
 	$(document).ready( function () {
-		$('.possible-location').click( function() {
+		var $errorContainer = jQuery( '#ft-error-container' ),
+			$metabox = jQuery( '#field-trip-location-meta' );
+
+		$metabox.on('click', '.possible-location', function() {
 			var location = $(this).attr('data-possible-location');
-			$(".geographic-location-field").val( location );
+			$(".geographic-location-field").val( location).trigger('change');
 		});
 
 		// Listen for changes to the geographic location to refresh the map
@@ -2252,10 +2256,22 @@
 
 			jQuery.post( ajaxurl, postdata, function( response ) {
 				response = jQuery.parseJSON(response);
-				if ( "undefined" !== typeof response.success && "true" === response.success && "undefined" !== typeof response.map ) {
-					var container = jQuery('#fieldtrip-map-container');
 
-					container.html( response.map );
+				var $mapContainer = jQuery('#fieldtrip-map-container');
+
+				if ( "undefined" !== typeof response.success ) {
+					// If we have a map, update that (Sometimes even with an error, we get a map - like in the case of having a location that is not specific enough
+					if ( "undefined" !== typeof response.map ) {
+						$mapContainer.html( response.map );
+					} else {
+						$mapContainer.html("");
+					}
+
+					if ( "false" === response.success && "undefined" !== typeof response.message ) {
+						$errorContainer.html( response.message );
+					} else {
+						$errorContainer.html('');
+					}
 				}
 			});
 		});

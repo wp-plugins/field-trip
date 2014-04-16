@@ -28,31 +28,6 @@ $location_meta = wp_parse_args(
 	$default_location_meta
 );
 
-
-if ( isset( $location_meta['error_code'] ) ) {
-
-	switch( $location_meta['error_code'] ) {
-
-		case "000":
-			$error = __( "Error connecting to API, please try again.", 'fieldtrip' );
-			break;
-
-		case "001":
-			$error = __( "No Results Returned", 'fieldtrip' );
-			break;
-
-		case "002":
-			$error = __( "Several locations with this address have been found. Please be more specific.", 'fieldtrip' );
-			break;
-
-		case "003":
-			$error = __( "Location is too non-specific for use in Field Trip.", 'fieldtrip' );
-			break;
-
-	}
-
-}
-
 echo '<div id="fieldtrip-map-container">';
 
 if ( $is_verified )
@@ -76,20 +51,13 @@ printf(
 	esc_attr( $location_meta['geographic_location'] )
 );
 
+echo '<div id="ft-error-container">';
 if ( isset( $location_meta['error_code'] ) ) {
 
-	echo '<div class="error inline"><p>E' . $location_meta['error_code'] . ': ' . $error . '</p></div>';
+	echo FieldTrip_WP::get_location_error_html( $location_meta );
 
-	// Several locations with address.
-	if ( $location_meta['error_code'] === "002" ) {
-		echo '<div class="postbox"><h3>Did you mean?</h3>';
-		echo '<div class="inside"><ul class="possible-locations">';
-		foreach ( $location_meta['possible_locations'] as $possible_location ) {
-			echo '<li class="possible-location" data-possible-location="' . esc_attr( $possible_location ) . '">' . esc_attr( $possible_location ) . '</li>';
-		}
-		echo '</ul></div></div>';
-	}
 }
+echo '</div>';
 
 
 echo '<hr />';

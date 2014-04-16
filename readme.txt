@@ -3,7 +3,7 @@ Contributors: nianticlabs, 10up
 Tags: fieldtrip, geolocation, rss, map
 Requires at least: 3.0.1
 Tested up to: 3.9
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,9 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and click on Submit to Field Trip.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix: Make sure that all error messages that would be triggered when clicking save/update post are also displayed when previewing the map via AJAX calls.
 
 = 1.1.0 =
 * Fix: Ensure that PHP libraries are present before using them to generate the xml feed.
