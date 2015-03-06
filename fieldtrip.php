@@ -4,7 +4,7 @@
  * Plugin URI: http://www.fieldtripper.com/
  * Description: This plugin adds the ability to set a location and other data for a post that is compatible with Field Trip.
  * Author: nianticlabs, 10up
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author URI: http://www.fieldtripper.com/
  * License: GPL2
  *
@@ -44,6 +44,13 @@ class FieldTrip_WP {
 		add_action( 'admin_notices', array( &$this, 'validation_notice' ) );
 
 		add_action( 'wp_ajax_fieldtrip_map_preview', array( $this, 'map_preview' ) );
+
+		// This will trump Feedburner redirect plugins when a custom feedburner feed has been created for Field Trip
+		if ( isset ( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			if (!preg_match("/feedburner|feedvalidator/i", $_SERVER['HTTP_USER_AGENT']) && ( false !== get_option( 'fieldtrip_rss_redirect' ) ) ) {
+				add_action('template_redirect', array( &$this, 'fieldtrip_feed_redirect' ), 8 );
+			}
+		}
 
 	}
 
@@ -259,12 +266,31 @@ E-mail: ' . get_bloginfo( 'admin_email' );
 		return $url;
 	}
 
+	/**
+	 * Redirects fieldtrip-feed to custom Feedburner feed when Feedburner Redirect plugins are in use.
+	 * This allows the feed to be redirected and retain its custom structure.
+	 */
+	function fieldtrip_feed_redirect() {
+		global $wp, $feedburner_settings, $feed, $withcomments;
+		if (is_feed() && 'fieldtrip-feed' == $feed ) {
+			if (function_exists('status_header')) status_header( 302 );
+			header("Location:" . esc_url( get_option('fieldtrip_rss_redirect') ) );
+			header("HTTP/1.1 302 Temporary Redirect");
+			exit();
+		}
+	}
+
 	public function feed_settings() {
 		if ( isset( $_POST['fieldtrip_content_filter'] ) ) {
 			update_option( 'fieldtrip_content_filter', sanitize_text_field( $_POST['fieldtrip_content_filter'] ) );
 		} else {
 			//not set, so make the option set to false
 			update_option( 'fieldtrip_content_filter', false );
+		}
+		if ( ! empty( $_POST['fieldtrip_rss_redirect'] ) ) {
+			update_option( 'fieldtrip_rss_redirect', esc_url_raw( $_POST['fieldtrip_rss_redirect'] ) );
+		} else {
+			delete_option( 'fieldtrip_rss_redirect' );
 		}
 	}
 

@@ -2,8 +2,8 @@
 Contributors: nianticlabs, 10up
 Tags: fieldtrip, geolocation, rss, map
 Requires at least: 3.0.1
-Tested up to: 4.1
-Stable tag: 1.1.1
+Tested up to: 4.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,9 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and click on Submit to Field Trip.
 
 == Changelog ==
+
+= 1.1.2 =
+* New: Added ability to specify a custom FeedBurner URL if using one of the FeedBurner Redirect plugins to prevent Field Trip from breaking.
 
 = 1.1.1 =
 * Fix: Make sure that all error messages that would be triggered when clicking save/update post are also displayed when previewing the map via AJAX calls.
@@ -65,3 +68,7 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 
 = 1.0.0-beta.06.04.2013 =
 *Fix: Title for images in feed sometimes isn't populated. Fallback to alt attribute if title attribute doesn't exist on image.
+
+== Upgrade Notice ==
+= 1.1.2 =
+Added ability to specify a custom FeedBurner URL if using one of the FeedBurner Redirect plugins to prevent Field Trip from breaking.

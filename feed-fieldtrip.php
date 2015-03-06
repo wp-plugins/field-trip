@@ -9,7 +9,7 @@ echo '<?xml version="1.0" encoding="' . get_option( 'blog_charset' ) . '"?' . '>
 		<title><?php bloginfo_rss( 'name' ); wp_title_rss(); ?></title>
 		<link><?php bloginfo_rss( 'url' ) ?></link>
 		<description><?php bloginfo_rss( 'description' ) ?></description>
-		<generator>Field Trip Plugin for WordPress 1.1.1</generator>
+		<generator>Field Trip Plugin for WordPress 1.1.2</generator>
 
 		<pubDate><?php echo apply_filters( 'fieldtrip_feed_pubdate', mysql2date( 'D, d M Y H:i:s +0000', get_lastpostmodified( 'GMT' ), false ) ); ?></pubDate>
 		<lastBuildDate><?php echo mysql2date( 'D, d M Y H:i:s +0000', get_lastpostmodified( 'GMT' ), false ); ?></lastBuildDate>
