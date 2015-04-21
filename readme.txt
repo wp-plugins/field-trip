@@ -2,8 +2,8 @@
 Contributors: nianticlabs, 10up
 Tags: fieldtrip, geolocation, rss, map
 Requires at least: 3.0.1
-Tested up to: 4.1.1
-Stable tag: 1.1.2
+Tested up to: 4.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,9 @@ If you are currently not a publisher for Field Trip, you can submit your site fo
 3. To request inclusion in the Field Trip app, go to the Settings menu, select Field Trip Settings, and click on Submit to Field Trip.
 
 == Changelog ==
+
+= 1.1.3 =
+* Fix: Security update adding esc_url_raw() to feed submission url using add_query_arg( ).
 
 = 1.1.2 =
 * New: Added ability to specify a custom FeedBurner URL if using one of the FeedBurner Redirect plugins to prevent Field Trip from breaking.
